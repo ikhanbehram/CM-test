@@ -1,10 +1,10 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
+const { urlRegex } = require("../utils/index");
 
 module.exports = {
     getTitle: (req, res) => {
         const { address } = req.query;
-        const urlRegex = /[a-zA-Z0-9-]{0,61}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/;
         if (typeof address === "string") {
             if (!address) {
                 res.status(400).send("Address is empty");

@@ -1,16 +1,16 @@
 const http = require("http");
 const cheerio = require("cheerio");
+const { urlRegex } = require("../utils/index");
 
 module.exports = {
     getTitle: (req, res) => {
         const { address } = req.query;
-        const urlRegex = /[a-zA-Z0-9-]{0,61}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/;
         if (typeof address === "string") {
             if (!address) {
-                res.status(400).send("Address is empty");
+                return res.status(400).send("Address is empty");
             }
             if (!address.match(urlRegex)) {
-                res.status(400).send("Invalid URL in address");
+                return res.status(400).send("Invalid URL in address");
             }
 
             const requestFunction = (callback, error) => {
@@ -48,13 +48,13 @@ module.exports = {
                     );
                 },
                 (error) => {
-                    res.status(error.status || 500).send(err.message || "Internal server error");
+                    res.status(error.status || 500).send(error.message || "Internal server error");
                 }
             );
         } else {
             address.forEach((url) => {
                 if (!url.match(urlRegex)) {
-                    res.status(404).send("Invalid URL in address");
+                    return res.status(404).send("Invalid URL in address");
                 }
             });
             let data = [];

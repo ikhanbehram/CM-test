@@ -1,10 +1,11 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
+const { urlRegex } = require("../utils/index");
 
 module.exports = {
     getTitle: async (req, res) => {
         const { address } = req.query;
-        const urlRegex = /[a-zA-Z0-9-]{0,61}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/;
+
         if (typeof address === "string") {
             try {
                 if (!address) {
