@@ -123,10 +123,10 @@ app.get("/I/want/title", (req, res) => {
                 res.status(404).send("Invalid URL in address");
             }
         });
-        const addPromises = address.map((ad) => {
+        const promises = address.map((ad) => {
             return axios.get(`http://${ad}`);
         });
-        Promise.all(addPromises)
+        Promise.all(promises)
             .then((data) => {
                 const titles = [];
                 data.forEach((d) => {
@@ -155,7 +155,7 @@ app.get("/I/want/title", (req, res) => {
 
 //////////////////////////////////
 //////////////////////////////////
-// Old School callback solution///
+//  callback solution////////////
 /////////////////////////////////
 /////////////////////////////////
 
@@ -327,11 +327,11 @@ app.get("/I/want/title", (req, res) => {
 //                 res.status(400).send("Invalid URL in Address");
 //             }
 //         });
-//         const addPromises = address.map((ad) => {
+//         const promises = address.map((ad) => {
 //             return axios.get(`http://${ad}`);
 //         });
 //         const observable = new Observable((subscriber) => {
-//             Promise.all(addPromises)
+//             Promise.all(promises)
 //                 .then((data) => {
 //                     subscriber.next(data);
 //                 })
