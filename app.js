@@ -84,82 +84,6 @@ const { Observable } = require("rxjs");
 //////////////////////////
 /////////////////////////
 
-// app.get("/I/want/title", (req, res) => {
-//     const { address } = req.query;
-//     const urlRegex = /[a-zA-Z0-9-]{0,61}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/;
-//     if (typeof address === "string") {
-//         if (!address) {
-//             res.status(400).send("Address is empty");
-//         }
-//         if (!address.match(urlRegex)) {
-//             res.status(400).send("Invalid URL in address");
-//         }
-
-//         axios
-//             .get(`http://${address}`)
-//             .then((data) => {
-//                 const $ = cheerio.load(data.data);
-//                 const title = $("title").html();
-//                 res.status(200).send(
-//                     `<html>
-//                      <head></head>
-//                     <body>
-
-//                       <h1> Following are the titles of given websites: </h1>
-
-//                          <ul>
-//                          ${`<li>${title}</li>`}
-//                          </ul>
-//                      </body>
-//                      </html>`
-//                 );
-//             })
-//             .catch((err) => {
-//                 res.status(500).json(err.message);
-//             });
-//     } else {
-//         address.forEach((url) => {
-//             if (!url.match(urlRegex)) {
-//                 res.status(404).send("Invalid URL in address");
-//             }
-//         });
-//         const addPromises = address.map((ad) => {
-//             return axios.get(`http://${ad}`);
-//         });
-//         Promise.all(addPromises)
-//             .then((data) => {
-//                 const titles = [];
-//                 data.forEach((d) => {
-//                     console.log(d);
-//                     const $ = cheerio.load(d.data);
-//                     const title = $("title").html();
-//                     titles.push(title);
-//                 });
-//                 const content = titles.map((title) => {
-//                     return `<li>${title}</li>`;
-//                 });
-//                 res.status(200).send(`<html>
-//                 <head></head>
-//                 <body>
-//                     <h1> Following are the titles of given websites: </h1>
-//                     <ul>
-//                      ${content.toString().replace(/,/, "")}
-//                     </ul>
-//                 </body>
-//                 </html>`);
-//             })
-//             .catch((err) => {
-//                 res.status(500).send(err.message || "Internal server error");
-//             });
-//     }
-// });
-
-//////////////////////////////////
-//////////////////////////////////
-// Old School callback solution///
-/////////////////////////////////
-/////////////////////////////////
-
 app.get("/I/want/title", (req, res) => {
     const { address } = req.query;
     const urlRegex = /[a-zA-Z0-9-]{0,61}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/;
@@ -171,102 +95,183 @@ app.get("/I/want/title", (req, res) => {
             res.status(400).send("Invalid URL in address");
         }
 
-        const requestFunction = (callback, error) => {
-            let data = "";
-            const request = http
-                .get(`http://${address}`, (res) => {
-                    res.on("data", (body) => {
-                        data += body;
-                    });
-
-                    res.on("end", () => {
-                        return callback(data);
-                    });
-                })
-                .on("error", (err) => {
-                    error(err);
-                });
-            request.end();
-        };
-        requestFunction(
-            (data) => {
-                const $ = cheerio.load(data);
+        axios
+            .get(`http://${address}`)
+            .then((data) => {
+                const $ = cheerio.load(data.data);
                 const title = $("title").html();
                 res.status(200).send(
                     `<html>
-                                      <head></head>
-                                     <body>
-                
-                                       <h1> Following are the titles of given websites: </h1>
-                
-                                          <ul>
-                                          ${`<li>${title}</li>`}
-                                          </ul>
-                                      </body>
-                                      </html>`
+                     <head></head>
+                    <body>
+
+                      <h1> Following are the titles of given websites: </h1>
+
+                         <ul>
+                         ${`<li>${title}</li>`}
+                         </ul>
+                     </body>
+                     </html>`
                 );
-            },
-            (error) => {
-                res.status(error.status || 500).send(err.message || "Internal server error");
-            }
-        );
+            })
+            .catch((err) => {
+                res.status(500).json(err.message);
+            });
     } else {
         address.forEach((url) => {
             if (!url.match(urlRegex)) {
                 res.status(404).send("Invalid URL in address");
             }
         });
-        const requestFunction = (callback) => {
-            var data = [];
-            for (var i = 0; i < address.length; i++) {
-                http.get(`http://${address[i]}`, function (res) {
-                    var body = "";
-                    res.on("data", function (chunk) {
-                        body += chunk;
-                    });
-                    res.on("end", function () {
-                        data.push(body);
-                        callback(data);
-                    });
-                }).on("error", function (e) {
-                    console.log("Error: ", e.message);
-                });
-            }
-        };
-        let contentData = [];
-        requestFunction((data) => {
-            contentData.push(...data);
-            console.log(data);
-            // const titles = [];
-            // data.forEach((d) => {
-            //     const $ = cheerio.load(d);
-            //     const title = $("title").html();
-            //     titles.push(title);
-            // });
-            // content = titles.map((title) => {
-            //     return `<li>${title}</li>`;
-            // });
+        const addPromises = address.map((ad) => {
+            return axios.get(`http://${ad}`);
         });
-
-        console.log(contentData);
-
-        // res.status(200).send(`<html>
-        // <head></head>
-        // <body>
-        //     <h1> Following are the titles of given websites: </h1>
-        //  <ul>
-        //      ${content.toString().replace(/,/, "")}
-        //     </ul>
-        // </body>
-        // </html>`);
+        Promise.all(addPromises)
+            .then((data) => {
+                const titles = [];
+                data.forEach((d) => {
+                    const $ = cheerio.load(d.data);
+                    const title = $("title").html();
+                    titles.push(title);
+                });
+                const content = titles.map((title) => {
+                    return `<li>${title}</li>`;
+                });
+                res.status(200).send(`<html>
+                <head></head>
+                <body>
+                    <h1> Following are the titles of given websites: </h1>
+                    <ul>
+                     ${content.toString().replace(/,/, "")}
+                    </ul>
+                </body>
+                </html>`);
+            })
+            .catch((err) => {
+                res.status(500).send(err.message || "Internal server error");
+            });
     }
 });
+
+//////////////////////////////////
+//////////////////////////////////
+// Old School callback solution///
+/////////////////////////////////
+/////////////////////////////////
+
+// app.get("/I/want/title", (req, res) => {
+//     const { address } = req.query;
+//     const urlRegex = /[a-zA-Z0-9-]{0,61}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/;
+//     if (typeof address === "string") {
+//         if (!address) {
+//             res.status(400).send("Address is empty");
+//         }
+//         if (!address.match(urlRegex)) {
+//             res.status(400).send("Invalid URL in address");
+//         }
+
+//         const requestFunction = (callback, error) => {
+//             let data = "";
+//             const request = http
+//                 .get(`http://${address}`, (res) => {
+//                     res.on("data", (chunk) => {
+//                         data += chunk;
+//                     });
+
+//                     res.on("end", () => {
+//                         return callback(data);
+//                     });
+//                 })
+//                 .on("error", (err) => {
+//                     error(err);
+//                 });
+//             request.end();
+//         };
+//         requestFunction(
+//             (data) => {
+//                 const $ = cheerio.load(data);
+//                 const title = $("title").html();
+//                 res.status(200).send(
+//                     `<html>
+//                           <head></head>
+//                             <body>
+//                                 <h1> Following are the titles of given websites: </h1>
+
+//                                  <ul>
+//                                     ${`<li>${title}</li>`}
+//                                  </ul>
+//                              </body>
+//                      </html>`
+//                 );
+//             },
+//             (error) => {
+//                 res.status(error.status || 500).send(err.message || "Internal server error");
+//             }
+//         );
+//     } else {
+//         address.forEach((url) => {
+//             if (!url.match(urlRegex)) {
+//                 res.status(404).send("Invalid URL in address");
+//             }
+//         });
+//         let data = [];
+//         let count = address.length;
+//         const requestFunction = (callback, error) => {
+//             address.forEach((url) => {
+//                 http.get(`http://${url}`, (res) => {
+//                     let body = "";
+//                     res.on("data", (chunk) => {
+//                         body += chunk;
+//                     });
+//                     res.on("end", () => {
+//                         count -= 1;
+//                         data.push({ body });
+//                         if (count === 0) {
+//                             callback(data);
+//                         }
+//                     });
+//                 }).on("error", function (err) {
+//                     error(err);
+//                 });
+//             });
+//         };
+
+//         requestFunction(
+//             (data) => {
+//                 const titles = [];
+//                 data.forEach((d) => {
+//                     if (d) {
+//                         const $ = cheerio.load(d.body);
+//                         const title = $("title").html();
+//                         titles.push(title);
+//                     }
+//                 });
+
+//                 content = titles.map((title) => {
+//                     return `<li>${title}</li>`;
+//                 });
+//                 res.status(200).send(`<html>
+//             <head></head>
+//             <body>
+//                 <h1> Following are the titles of given websites: </h1>
+//              <ul>
+//                  ${content.toString().replace(/,/, "")}
+//                 </ul>
+//             </body>
+//             </html>`);
+//             },
+//             (error) => {
+//                 res.status(error.status || 500).send(error.message || "Internal server error");
+//             }
+//         );
+//     }
+// });
 
 //
 
 //////////////////////////////////
 //////////////////////////////////
-// BONUES RXJS SOLUTION //////////
+// BONUS RXJS SOLUTION //////////
 /////////////////////////////////
 /////////////////////////////////
 
@@ -339,7 +344,6 @@ app.get("/I/want/title", (req, res) => {
 //             (data) => {
 //                 const titles = [];
 //                 data.forEach((d) => {
-//                     console.log(d);
 //                     const $ = cheerio.load(d.data);
 //                     const title = $("title").html();
 //                     titles.push(title);
