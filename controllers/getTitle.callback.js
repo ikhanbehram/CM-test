@@ -5,10 +5,10 @@ const { urlRegex } = require("../utils/index");
 module.exports = {
     getTitle: (req, res) => {
         const { address } = req.query;
+        if (!address) {
+            return res.status(400).send("Address is empty");
+        }
         if (typeof address === "string") {
-            if (!address) {
-                return res.status(400).send("Address is empty");
-            }
             if (!address.match(urlRegex)) {
                 return res.status(400).send("Invalid URL in address");
             }

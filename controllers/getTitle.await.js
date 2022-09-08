@@ -6,11 +6,11 @@ module.exports = {
     getTitle: async (req, res) => {
         const { address } = req.query;
 
+        if (!address) {
+            return res.status(400).send("Address is empty");
+        }
         if (typeof address === "string") {
             try {
-                if (!address) {
-                    throw { status: 400, message: "Address is empty" };
-                }
                 if (!address.match(urlRegex)) {
                     throw { status: 406, message: "Invalid URL in address" };
                 }
