@@ -65,7 +65,7 @@ module.exports = {
                 </body>
                 </html>`);
             } catch (err) {
-                res.status(err.staus || 500).send(err.message || "Internal Server Error");
+                res.status(err.status || 500).send(err.message || "Internal Server Error");
             }
         }
     }
