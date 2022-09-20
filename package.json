@@ -5,6 +5,7 @@
     "main": "app.js",
     "scripts": {
         "test": "mocha test",
+        "coverage": "nyc npm run test",
         "start": "nodemon server.js"
     },
     "author": "",

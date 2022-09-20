@@ -19,9 +19,10 @@ describe("get title with await", () => {
         expect(inAccurateRes).status(406);
         expect(inAccurateRes.body).to.equal("Invalid URL in address");
     });
-    it("should look for multiple urls invalidation", async () => {
+    it("should look for multiple invalid urls", async () => {
         const inAccurateRes = await requestApi("/I/want/title/await?address=www.google.com&address=www");
         expect(inAccurateRes).status(404);
         expect(inAccurateRes.text).to.equal("Invalid URL in address");
     });
+    it("should look for single url response", () => {});
 });
